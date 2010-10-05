@@ -27,7 +27,7 @@
 %% Generic file contents operations
 -export([open/2, close/1, datasync/1, sync/1, advise/4, position/2, truncate/1,
 	 write/2, pwrite/2, pwrite/3, read/2, read_line/1, pread/2, pread/3, copy/3,
-	 raw_copy/2, raw_copy/3,]).
+	 raw_copy/2, raw_copy/3]).
 
 %% Specialized file operations
 -export([open/1, open/3]).
