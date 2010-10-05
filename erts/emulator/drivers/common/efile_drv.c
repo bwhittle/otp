@@ -55,6 +55,7 @@
 #define FILE_READ_LINE          29
 #define FILE_FDATASYNC          30
 #define FILE_FADVISE            31
+#define FILE_COPY	            32
 
 /* Return codes */
 
@@ -1525,6 +1526,17 @@ static void invoke_rename(void *data)
     d->result_ok = efile_rename(&d->errInfo, name, new_name);
 }
 
+static void invoke_copy(void *data)
+{
+    struct t_data *d = (struct t_data *) data;
+    char *name = d->b;
+    char *new_name;
+
+    d->again = 0;
+    new_name = name+strlen(name)+1;
+    d->result_ok = efile_copy(&d->errInfo, name, new_name);
+}
+
 static void invoke_write_info(void *data)
 {
     struct t_data *d = (struct t_data *) data;
@@ -1953,6 +1965,7 @@ file_async_ready(ErlDrvData e, ErlDrvThreadData data)
       case FILE_LINK:
       case FILE_SYMLINK:
       case FILE_RENAME:
+	  case FILE_COPY:
       case FILE_WRITE_INFO:
       case FILE_FADVISE:
 	reply(desc, d->result_ok, &d->errInfo);
@@ -2163,6 +2176,25 @@ file_output(ErlDrvData e, char* buf, int count)
 	    d->level = 2;
 	    goto done;
 	}
+    case FILE_COPY:
+	{
+	    char* new_name;
+
+	    new_name = name+strlen(name)+1;
+	    d = EF_SAFE_ALLOC(sizeof(struct t_data) - 1
+			      + strlen(name) + 1
+			      + strlen(new_name) + 1);
+	
+	    strcpy(d->b, name);
+	    strcpy(d->b + strlen(name) + 1, new_name);
+	    d->flags = desc->flags;
+	    d->fd = fd;
+	    d->command = command;
+	    d->invoke = invoke_copy;
+	    d->free = free_data;
+	    d->level = 2;
+	    goto done;
+	}	
     case FILE_CHDIR:
     {
 	d = EF_SAFE_ALLOC(sizeof(struct t_data) - 1 + strlen(name) + 1);

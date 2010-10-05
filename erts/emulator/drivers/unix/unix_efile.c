@@ -1462,3 +1462,18 @@ efile_fadvise(Efile_error* errInfo, int fd, Sint64 offset,
     return check_error(0, errInfo);
 #endif
 }
+
+int
+efile_copy(Efile_error* errInfo, char* old, char* new)
+{
+    CHECK_PATHLEN(src,errInfo);
+    CHECK_PATHLEN(dst,errInfo);
+    if (copy(src, dst) == 0) {
+	return 1;
+    }
+    if (errno == ENOTEMPTY) {
+	errno = EEXIST;
+    }
+
+    return check_error(-1, errInfo);
+}

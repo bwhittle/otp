@@ -1446,3 +1446,12 @@ efile_fadvise(Efile_error* errInfo, int fd, Sint64 offset,
     errno = ERROR_SUCCESS;
     return check_error(0, errInfo);
 }
+
+int
+efile_copy(Efile_error* errInfo, char* old, char* new)
+{
+	if(!CopyFile(new, old, FALSE))
+		return set_error(errInfo);
+
+	return 1;
+}
